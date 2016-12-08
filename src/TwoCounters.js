@@ -1,30 +1,38 @@
-import React, { PureComponent } from 'react'
+import React from 'react'
+import connectState from './connectState'
 import Counter from './Counter'
 import { wrapAction, unwrapAction } from './utils'
 
-class TwoCounters extends PureComponent {
+function TwoCounters(props) {
+  return (
+    <div>
+      <Counter dispatch={props.actions.dispatchOne} state={props.state.counterOne}/>
+      <Counter dispatch={props.actions.dispatchTwo} state={props.state.counterTwo}/>
+    </div>
+  )
+}
 
-  static init() {
+const actionTypes = {
+  counterOne: 'two-counters/one',
+  counterTwo: 'two-counters/two',
+}
+
+export default connectState({
+  init() {
     return {
       counterOne: Counter.init(),
       counterTwo: Counter.init(),
     }
-  }
-
-  static actionTypes = {
-    counterOne: 'two-counters/one',
-    counterTwo: 'two-counters/two',
-  }
-
-  static reducer(state, action) {
+  },
+  reducer(state, action) {
     switch(action.type) {
-      case TwoCounters.actionTypes.counterOne: {
+      case actionTypes.counterOne: {
         return {
           ...state,
           counterOne: Counter.reducer(state.counterOne, unwrapAction(action))
         }
       }
-      case TwoCounters.actionTypes.counterTwo: {
+      case actionTypes.counterTwo: {
         return {
           ...state,
           counterTwo: Counter.reducer(state.counterTwo, unwrapAction(action))
@@ -34,21 +42,9 @@ class TwoCounters extends PureComponent {
         return state
       }
     }
+  },
+  actions: {
+    dispatchOne: (action) => (dispatch) => dispatch(wrapAction(actionTypes.counterOne, action)),
+    dispatchTwo: (action) => (dispatch) => dispatch(wrapAction(actionTypes.counterTwo, action)),
   }
-
-  dispatch = {
-    counterOne: (action) => this.props.dispatch(wrapAction(TwoCounters.actionTypes.counterOne, action)),
-    counterTwo: (action) => this.props.dispatch(wrapAction(TwoCounters.actionTypes.counterTwo, action)),
-  }
-
-  render() {
-    return (
-      <div>
-        <Counter dispatch={this.dispatch.counterOne} state={this.props.state.counterOne}/>
-        <Counter dispatch={this.dispatch.counterTwo} state={this.props.state.counterTwo}/>
-      </div>
-    )
-  }
-}
-
-export default TwoCounters
+})(TwoCounters)

@@ -1,26 +1,35 @@
-import React, { PureComponent } from 'react'
+import React from 'react'
+import connectState from './connectState'
 
-class Counter extends PureComponent {
+function Counter(props) {
+  return (
+    <div>
+      <button onClick={props.actions.onDec}>dec</button>
+      <span>{props.state.count}</span>
+      <button onClick={props.actions.onInc}>inc</button>
+    </div>
+  )
+}
 
-  static init() {
+const actionTypes = {
+  inc: 'counter/inc',
+  dec: 'counter/dec'
+}
+
+export default connectState({
+  init() {
     return {
       count: 0,
     }
-  }
-
-  static actionTypes = {
-    inc: 'counter/inc',
-    dec: 'counter/dec'
-  }
-
-  static reducer(state, action) {
+  },
+  reducer(state, action) {
     switch(action.type) {
-      case Counter.actionTypes.inc: {
+      case actionTypes.inc: {
         return {
           count: state.count + 1,
         }
       }
-      case Counter.actionTypes.dec: {
+      case actionTypes.dec: {
         return {
           count: state.count - 1,
         }
@@ -29,26 +38,9 @@ class Counter extends PureComponent {
         return state
       }
     }
-  }
-
-  static actions = {
-    inc: () => ({type: Counter.actionTypes.inc}),
-    dec: () => ({type: Counter.actionTypes.dec}),
-  }
-
-  onInc = () => this.props.dispatch(Counter.actions.inc())
-  onDec = () => this.props.dispatch(Counter.actions.dec())
-
-  render() {
-    console.log('render Counter')
-    return (
-      <div>
-        <button onClick={this.onDec}>dec</button>
-        <span>{this.props.state.count}</span>
-        <button onClick={this.onInc}>inc</button>
-      </div>
-    )
-  }
-}
-
-export default Counter
+  },
+  actions: {
+    onInc: () => ({type: actionTypes.inc}),
+    onDec: () => ({type: actionTypes.dec}),
+  },
+})(Counter)
